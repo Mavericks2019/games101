@@ -1,0 +1,3 @@
+/opt/homework1/build/CMakeFiles/rebuild_cache.dir
+/opt/homework1/build/CMakeFiles/edit_cache.dir
+/opt/homework1/build/CMakeFiles/Rasterizer.dir
