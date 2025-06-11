@@ -4,6 +4,9 @@
 #include <FL/Fl_Round_Button.H>
 #include <FL/Fl_Group.H>
 #include <iostream>
+#include <chrono>
+#include "solver.h"
+using namespace Eigen;
 
 // 安全传递形状类型的辅助结构
 struct ShapeData {
@@ -16,7 +19,8 @@ static void clear_callback(Fl_Widget *widget, void *data);
 static void print_callback(Fl_Widget *widget, void *data);
 static void color_callback(Fl_Widget *widget, void *data);
 static void shape_callback(Fl_Widget *widget, void *data);
-static void new_button_callback(Fl_Widget *widget, void *data); // 新增按钮回调
+static void new_button_callback(Fl_Widget *widget, void *data); 
+static void poly_button_callback(Fl_Widget *widget, void *data); 
 
 int main() {
     // 创建更大的窗口以容纳新按钮
@@ -49,8 +53,8 @@ int main() {
     y_pos += btn_height + btn_spacing;
     
     // ================== 新增功能按钮 ==================
-    Fl_Button *save_btn = new Fl_Button(820, y_pos, btn_width, btn_height, "Ploynomial Fitting");
-    save_btn->callback(new_button_callback, (void*)"Save");
+    Fl_Button *poly_btn = new Fl_Button(820, y_pos, btn_width, btn_height, "Ploynomial Fitting");
+    poly_btn->callback(poly_button_callback, canvas);
     y_pos += btn_height + btn_spacing;
     
     Fl_Button *load_btn = new Fl_Button(820, y_pos, btn_width, btn_height, "Gaussian Fitting");
@@ -185,6 +189,37 @@ static void color_callback(Fl_Widget *widget, void *data) {
     if (btn->value()) {
         drawing_canvas *canvas = static_cast<drawing_canvas *>(data);
         canvas->set_color(btn->color());
+    }
+}
+
+static void poly_button_callback(Fl_Widget *widget, void *data) {
+    Fl_Round_Button *btn = static_cast<Fl_Round_Button *>(widget);
+    drawing_canvas *canvas = static_cast<drawing_canvas *>(data);
+    canvas->set_color(btn->color());
+    int n = canvas->points.size();
+    MatrixXd A(n, n);
+    VectorXd b(n);
+    int minx = 810;
+    int maxx = 0;
+    for(int j = 0; j < canvas->points.size(); j++) {
+        auto point = canvas->points[j];
+        b(j) = point.y;
+        VectorXd tmp(n);
+        minx = min(minx, point.x);
+        maxx = max(minx, point.x);
+        for(int i = 0; i < n; i++) {
+            A(j, i) = pow(point.x, i);
+        }
+    }
+
+    auto res = solve_linear_system(A, b);
+    for(float m = minx; m < maxx; m += 0.1){
+        double tmpy = 0;
+        for(int n = 0; n < res.size(); n++) {
+            tmpy += res(n) * pow(m, n);
+        }
+        std::cout << tmpy << std::endl;
+        canvas->add_point({(int)m, (int)tmpy, FL_RED, CIRCLE});
     }
 }
 

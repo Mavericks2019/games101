@@ -6,7 +6,7 @@
 drawing_canvas::drawing_canvas(int x, int y, int w, int h) : 
     Fl_Box(x, y, w, h),
     current_color(FL_RED),
-    current_shape(RECTANGLE), // 默认圆形
+    current_shape(RECTANGLE), // 默认矩形
     is_dragging(false),
     drag_index(-1),
     last_x(0),
@@ -77,6 +77,11 @@ int drawing_canvas::find_point_at(int x, int y) {
     }
     return -1; // 没有找到点
 }
+
+ void drawing_canvas::add_point(point&& p) {
+    points.push_back(p);
+    redraw();
+ }
 
 void drawing_canvas::draw() {
     // 绘制黑色背景

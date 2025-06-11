@@ -9,6 +9,7 @@ add_executable(drawing_app
     main.cpp
     drawing_canvas.cpp
     drawing_canvas.h
+    solver.h
 )
 
 # 链接FLTK库
