@@ -49,28 +49,23 @@ int main() {
     y_pos += btn_height + btn_spacing;
     
     // ================== 新增功能按钮 ==================
-    // 按钮1：保存画布
-    Fl_Button *save_btn = new Fl_Button(820, y_pos, btn_width, btn_height, "Save Canvas");
+    Fl_Button *save_btn = new Fl_Button(820, y_pos, btn_width, btn_height, "Ploynomial Fitting");
     save_btn->callback(new_button_callback, (void*)"Save");
     y_pos += btn_height + btn_spacing;
     
-    // 按钮2：加载画布
-    Fl_Button *load_btn = new Fl_Button(820, y_pos, btn_width, btn_height, "Load Canvas");
+    Fl_Button *load_btn = new Fl_Button(820, y_pos, btn_width, btn_height, "Gaussian Fitting");
     load_btn->callback(new_button_callback, (void*)"Load");
     y_pos += btn_height + btn_spacing;
     
-    // 按钮3：撤销操作
-    Fl_Button *undo_btn = new Fl_Button(820, y_pos, btn_width, btn_height, "Undo Last Point");
+    Fl_Button *undo_btn = new Fl_Button(820, y_pos, btn_width, btn_height, "Ploynomial Regression");
     undo_btn->callback(new_button_callback, (void*)"Undo");
     y_pos += btn_height + btn_spacing;
     
-    // 按钮4：改变点大小
-    Fl_Button *size_btn = new Fl_Button(820, y_pos, btn_width, btn_height, "Change Point Size");
+    Fl_Button *size_btn = new Fl_Button(820, y_pos, btn_width, btn_height, "Ridge Regression");
     size_btn->callback(new_button_callback, (void*)"Size");
     y_pos += btn_height + btn_spacing;
     
-    // 按钮5：切换背景
-    Fl_Button *bg_btn = new Fl_Button(820, y_pos, btn_width, btn_height, "Toggle Background");
+    Fl_Button *bg_btn = new Fl_Button(820, y_pos, btn_width, btn_height, "All");
     bg_btn->callback(new_button_callback, (void*)"Background");
     y_pos += btn_height + btn_spacing * 2;
     
