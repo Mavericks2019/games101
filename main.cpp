@@ -3,13 +3,13 @@
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Round_Button.H>
 #include <FL/Fl_Group.H>
-#include <iostream> // 添加用于调试
+#include <iostream>
 
 // 前向声明回调函数
 static void clear_callback(Fl_Widget *widget, void *data);
 static void print_callback(Fl_Widget *widget, void *data);
 static void color_callback(Fl_Widget *widget, void *data);
-static void shape_callback(Fl_Widget *widget, void *data); // 形状回调
+static void shape_callback(Fl_Widget *widget, void *data);
 
 // 安全传递形状类型的辅助结构
 struct ShapeData {
@@ -116,6 +116,10 @@ int main() {
         static_cast<Fl_Window *>(w)->hide(); 
     }, window);
     
+    // 添加拖动说明
+    Fl_Box *drag_info = new Fl_Box(820, 550, 160, 40, "Drag: Left-click on point");
+    drag_info->labelsize(12);
+    
     window->end();
     window->show();
     
@@ -148,7 +152,7 @@ static void color_callback(Fl_Widget *widget, void *data) {
     }
 }
 
-// 修复的形状选择回调函数
+// 形状选择回调函数
 static void shape_callback(Fl_Widget *widget, void *data) {
     Fl_Round_Button *btn = static_cast<Fl_Round_Button *>(widget);
     if (btn->value()) {
