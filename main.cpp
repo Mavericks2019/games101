@@ -5,120 +5,161 @@
 #include <FL/Fl_Group.H>
 #include <iostream>
 
-// 前向声明回调函数
-static void clear_callback(Fl_Widget *widget, void *data);
-static void print_callback(Fl_Widget *widget, void *data);
-static void color_callback(Fl_Widget *widget, void *data);
-static void shape_callback(Fl_Widget *widget, void *data);
-
 // 安全传递形状类型的辅助结构
 struct ShapeData {
     drawing_canvas* canvas;
     ShapeType shape;
 };
 
+// 前向声明回调函数
+static void clear_callback(Fl_Widget *widget, void *data);
+static void print_callback(Fl_Widget *widget, void *data);
+static void color_callback(Fl_Widget *widget, void *data);
+static void shape_callback(Fl_Widget *widget, void *data);
+static void new_button_callback(Fl_Widget *widget, void *data); // 新增按钮回调
+
 int main() {
-    Fl_Window *window = new Fl_Window(1000, 600, "FLTK Drawing Canvas");
+    // 创建更大的窗口以容纳新按钮
+    Fl_Window *window = new Fl_Window(1100, 810, "Enhanced Drawing Canvas");
     
-    drawing_canvas *canvas = new drawing_canvas(0, 0, 800, 600);
+    // 设置窗口不可调整大小和最大化
+    window->resizable(nullptr); // 禁止调整大小
+    window->size_range(1100, 810, 1100, 810); // 固定窗口大小
     
-    Fl_Box *toolbar = new Fl_Box(800, 0, 200, 600);
+    // 创建画布（占据窗口左侧）
+    drawing_canvas *canvas = new drawing_canvas(0, 0, 810, 810);
+    
+    // 工具栏（占据窗口右侧）
+    Fl_Box *toolbar = new Fl_Box(810, 0, 300, 810);
     toolbar->box(FL_ENGRAVED_BOX);
     toolbar->color(fl_rgb_color(240, 240, 240));
     
-    Fl_Button *clear_btn = new Fl_Button(820, 30, 160, 40, "Clear Canvas");
+    // ================== 基本功能按钮 ==================
+    int y_pos = 30;
+    const int btn_height = 40;
+    const int btn_width = 260;
+    const int btn_spacing = 10;
+    
+    Fl_Button *clear_btn = new Fl_Button(820, y_pos, btn_width, btn_height, "Clear Canvas");
     clear_btn->callback(clear_callback, canvas);
+    y_pos += btn_height + btn_spacing;
     
-    Fl_Button *print_btn = new Fl_Button(820, 80, 160, 40, "Print Points");
+    Fl_Button *print_btn = new Fl_Button(820, y_pos, btn_width, btn_height, "Print Points");
     print_btn->callback(print_callback, canvas);
+    y_pos += btn_height + btn_spacing;
     
-    Fl_Box *size_info = new Fl_Box(820, 130, 160, 30, "Point Size: 5px");
+    // ================== 新增功能按钮 ==================
+    // 按钮1：保存画布
+    Fl_Button *save_btn = new Fl_Button(820, y_pos, btn_width, btn_height, "Save Canvas");
+    save_btn->callback(new_button_callback, (void*)"Save");
+    y_pos += btn_height + btn_spacing;
+    
+    // 按钮2：加载画布
+    Fl_Button *load_btn = new Fl_Button(820, y_pos, btn_width, btn_height, "Load Canvas");
+    load_btn->callback(new_button_callback, (void*)"Load");
+    y_pos += btn_height + btn_spacing;
+    
+    // 按钮3：撤销操作
+    Fl_Button *undo_btn = new Fl_Button(820, y_pos, btn_width, btn_height, "Undo Last Point");
+    undo_btn->callback(new_button_callback, (void*)"Undo");
+    y_pos += btn_height + btn_spacing;
+    
+    // 按钮4：改变点大小
+    Fl_Button *size_btn = new Fl_Button(820, y_pos, btn_width, btn_height, "Change Point Size");
+    size_btn->callback(new_button_callback, (void*)"Size");
+    y_pos += btn_height + btn_spacing;
+    
+    // 按钮5：切换背景
+    Fl_Button *bg_btn = new Fl_Button(820, y_pos, btn_width, btn_height, "Toggle Background");
+    bg_btn->callback(new_button_callback, (void*)"Background");
+    y_pos += btn_height + btn_spacing * 2;
+    
+    // ================== 点大小信息 ==================
+    Fl_Box *size_info = new Fl_Box(820, y_pos, btn_width, 30, "Point Size: 5px");
     size_info->labelsize(16);
+    y_pos += 40;
     
     // ================== 颜色选择组 ==================
-    Fl_Group *color_group = new Fl_Group(820, 170, 160, 180, "Drawing Color");
+    Fl_Group *color_group = new Fl_Group(820, y_pos, btn_width, 180, "Drawing Color");
     color_group->box(FL_ENGRAVED_FRAME);
     color_group->align(FL_ALIGN_TOP | FL_ALIGN_INSIDE);
     
-    int y_pos = 200;
-    const int btn_height = 30;
+    int color_y = y_pos + 30;
+    const int color_btn_height = 30;
     
-    Fl_Round_Button *white_btn = new Fl_Round_Button(830, y_pos, 140, btn_height, "White");
+    Fl_Round_Button *white_btn = new Fl_Round_Button(830, color_y, btn_width - 20, color_btn_height, "White");
     white_btn->type(FL_RADIO_BUTTON);
     white_btn->value(1);
     white_btn->color(FL_WHITE);
     white_btn->selection_color(FL_WHITE);
     white_btn->callback(color_callback, canvas);
-    y_pos += btn_height;
+    color_y += color_btn_height;
     
-    Fl_Round_Button *red_btn = new Fl_Round_Button(830, y_pos, 140, btn_height, "Red");
+    Fl_Round_Button *red_btn = new Fl_Round_Button(830, color_y, btn_width - 20, color_btn_height, "Red");
     red_btn->type(FL_RADIO_BUTTON);
     red_btn->color(FL_RED);
     red_btn->selection_color(FL_RED);
     red_btn->callback(color_callback, canvas);
-    y_pos += btn_height;
+    color_y += color_btn_height;
     
-    Fl_Round_Button *green_btn = new Fl_Round_Button(830, y_pos, 140, btn_height, "Green");
+    Fl_Round_Button *green_btn = new Fl_Round_Button(830, color_y, btn_width - 20, color_btn_height, "Green");
     green_btn->type(FL_RADIO_BUTTON);
     green_btn->color(FL_GREEN);
     green_btn->selection_color(FL_GREEN);
     green_btn->callback(color_callback, canvas);
-    y_pos += btn_height;
+    color_y += color_btn_height;
     
-    Fl_Round_Button *blue_btn = new Fl_Round_Button(830, y_pos, 140, btn_height, "Blue");
+    Fl_Round_Button *blue_btn = new Fl_Round_Button(830, color_y, btn_width - 20, color_btn_height, "Blue");
     blue_btn->type(FL_RADIO_BUTTON);
     blue_btn->color(FL_BLUE);
     blue_btn->selection_color(FL_BLUE);
     blue_btn->callback(color_callback, canvas);
-    y_pos += btn_height;
+    color_y += color_btn_height;
     
-    Fl_Round_Button *yellow_btn = new Fl_Round_Button(830, y_pos, 140, btn_height, "Yellow");
+    Fl_Round_Button *yellow_btn = new Fl_Round_Button(830, color_y, btn_width - 20, color_btn_height, "Yellow");
     yellow_btn->type(FL_RADIO_BUTTON);
     yellow_btn->color(FL_YELLOW);
     yellow_btn->selection_color(FL_YELLOW);
     yellow_btn->callback(color_callback, canvas);
-    y_pos += btn_height;
     
     color_group->end();
+    y_pos += 200;
     
     // ================== 形状选择组 ==================
-    Fl_Group *shape_group = new Fl_Group(820, 360, 160, 120, "Drawing Shape");
+    Fl_Group *shape_group = new Fl_Group(820, y_pos, btn_width, 120, "Drawing Shape");
     shape_group->box(FL_ENGRAVED_FRAME);
     shape_group->align(FL_ALIGN_TOP | FL_ALIGN_INSIDE);
     
-    y_pos = 390;
+    int shape_y = y_pos + 30;
     
     // 为每个形状创建数据对象
     ShapeData* circle_data = new ShapeData{canvas, CIRCLE};
     ShapeData* rect_data = new ShapeData{canvas, RECTANGLE};
     ShapeData* triangle_data = new ShapeData{canvas, TRIANGLE};
     
-    Fl_Round_Button *circle_btn = new Fl_Round_Button(830, y_pos, 140, btn_height, "Circle");
+    Fl_Round_Button *circle_btn = new Fl_Round_Button(830, shape_y, btn_width - 20, color_btn_height, "Circle");
     circle_btn->type(FL_RADIO_BUTTON);
     circle_btn->value(1); // 默认选中
     circle_btn->callback(shape_callback, circle_data);
-    y_pos += btn_height;
+    shape_y += color_btn_height;
     
-    Fl_Round_Button *rect_btn = new Fl_Round_Button(830, y_pos, 140, btn_height, "Rectangle");
+    Fl_Round_Button *rect_btn = new Fl_Round_Button(830, shape_y, btn_width - 20, color_btn_height, "Rectangle");
     rect_btn->type(FL_RADIO_BUTTON);
     rect_btn->callback(shape_callback, rect_data);
-    y_pos += btn_height;
+    shape_y += color_btn_height;
     
-    Fl_Round_Button *triangle_btn = new Fl_Round_Button(830, y_pos, 140, btn_height, "Triangle");
+    Fl_Round_Button *triangle_btn = new Fl_Round_Button(830, shape_y, btn_width - 20, color_btn_height, "Triangle");
     triangle_btn->type(FL_RADIO_BUTTON);
     triangle_btn->callback(shape_callback, triangle_data);
     
     shape_group->end();
+    y_pos += 130;
     
     // ================== 退出按钮 ==================
-    Fl_Button *quit_btn = new Fl_Button(820, 500, 160, 40, "Quit");
+    Fl_Button *quit_btn = new Fl_Button(820, y_pos, btn_width, btn_height, "Quit");
     quit_btn->callback([](Fl_Widget *, void *w) { 
         static_cast<Fl_Window *>(w)->hide(); 
     }, window);
-    
-    // 添加拖动说明
-    Fl_Box *drag_info = new Fl_Box(820, 550, 160, 40, "Drag: Left-click on point");
-    drag_info->labelsize(12);
     
     window->end();
     window->show();
@@ -160,5 +201,28 @@ static void shape_callback(Fl_Widget *widget, void *data) {
         if (shape_data && shape_data->canvas) {
             shape_data->canvas->set_shape(shape_data->shape);
         }
+    }
+}
+
+// 新增按钮回调函数
+static void new_button_callback(Fl_Widget *widget, void *data) {
+    const char* action = static_cast<const char*>(data);
+    std::cout << "Button clicked: " << action << std::endl;
+    
+    // 这里可以添加实际功能代码
+    if (strcmp(action, "Save") == 0) {
+        // 实现保存功能
+    }
+    else if (strcmp(action, "Load") == 0) {
+        // 实现加载功能
+    }
+    else if (strcmp(action, "Undo") == 0) {
+        // 实现撤销功能
+    }
+    else if (strcmp(action, "Size") == 0) {
+        // 实现改变点大小功能
+    }
+    else if (strcmp(action, "Background") == 0) {
+        // 实现切换背景功能
     }
 }

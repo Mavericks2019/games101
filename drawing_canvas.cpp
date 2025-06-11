@@ -5,8 +5,8 @@
 
 drawing_canvas::drawing_canvas(int x, int y, int w, int h) : 
     Fl_Box(x, y, w, h),
-    current_color(FL_WHITE),
-    current_shape(CIRCLE), // 默认圆形
+    current_color(FL_RED),
+    current_shape(RECTANGLE), // 默认圆形
     is_dragging(false),
     drag_index(-1),
     last_x(0),
